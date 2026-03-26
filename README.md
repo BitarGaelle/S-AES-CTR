@@ -19,7 +19,14 @@ The block cipher expands a 16-bit key into three round keys ($K_0, K_1, K_2$). I
 To execute this, the required sequence is:
 `AddRoundKey` $\rightarrow$ `SubNibbles` $\rightarrow$ `ShiftRows` $\rightarrow$ `MixColumns` $\rightarrow$ `AddRoundKey` $\rightarrow$ `SubNibbles` $\rightarrow$ `ShiftRows` $\rightarrow$ `AddRoundKey`. 
 
-## 4. How to Use & Test the Project
+## 4. The Logic of `ctr_mode.py`
+The CTR wrapper is highly optimized to encrypt binary streams safely without corrupting the file's structure. It maps directly to theoretical cryptography models by performing four distinct logical phases:
+1. **Binary Byte Parsing**: Safely reads incoming files as chunks using `int.from_bytes()`. It explicitly traps 1-byte EOF edge cases to prevent binary padding corruption when processing files with odd sizes.
+2. **Deterministic Keystream Generation**: It passes the iterative `counter` (instead of plaintext) and the `secret key` directly into the `saes_encrypt` mathematical core to generate a pseudorandom 16-bit keystream value.
+3. **Symmetrical XOR Application**: Blends the keystream and the actual file block using Bitwise XOR (`^`). Because of the symmetry of XOR logic, this exact same identical procedure seamlessly encrypts plaintext into ciphertext and decrypts ciphertext into plaintext.
+4. **Counter Increment Bounds**: Ensures the internal nonce stream stays perfectly synchronized via a modulo wrap-around calculation `(counter + 1) % 65536`.
+
+## 5. How to Use & Test the Project
 Because Counter Mode (CTR) transforms a block cipher into a stream cipher via symmetrical XOR operations, the script for encryption is completely mathematically identical to the script for decryption. 
 
 ### Executing the script
