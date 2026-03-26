@@ -101,10 +101,10 @@ def saes_encrypt(block, key):
     
     return state
 
-plaintext = 0x6F6B
-key = 0xA73B
+# plaintext = 0x6F6B
+# key = 0xA73B
 
-print(f'keys: {key_expansion(key)} ')
+# print(f'keys: {key_expansion(key)} ')
 
-print(f'Cypher text: {saes_encrypt(plaintext, key)}')
+# print(f'Cypher text: {saes_encrypt(plaintext, key)}')
 
