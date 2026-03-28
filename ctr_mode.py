@@ -24,6 +24,7 @@ def read_file_to_integers(filepath: str):
                 break
             if len(chunk) == 1:
                 last_chunk_was_1_byte = True            #now we convert the chunk(2bytes) into integers
+                chunk = chunk + b'\x00'
             num = int.from_bytes(chunk, 'big')
             integers.append(num)
     return (integers, last_chunk_was_1_byte)
@@ -37,7 +38,8 @@ def write_integers_to_file(integers_list: list[int], filepath: str, last_chunk_w
         for item in range(len(integers_list)):
             num = integers_list[item]
             if item == (len(integers_list) - 1) and (last_chunk_was_1_byte == True):
-                f.write(num.to_bytes(1, 'big'))
+                first_byte = num >> 8
+                f.write(first_byte.to_bytes(1, 'big'))
             elif (item == len(integers_list) - 1):
                 f.write(num.to_bytes(2, 'big'))
             else:
