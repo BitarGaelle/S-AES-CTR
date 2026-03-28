@@ -23,8 +23,11 @@ def read_file_to_integers(filepath: str):
             if not chunk: # if empty -> EOF
                 break
             if len(chunk) == 1:
-                last_chunk_was_1_byte = True            #now we convert the chunk(2bytes) into integers
+                last_chunk_was_1_byte = True
+                #we add padding so python wont put padding on the
+                #left of the actual data -> so after XOR the program wont crash
                 chunk = chunk + b'\x00'
+            #now we convert the chunk(2bytes) into integers
             num = int.from_bytes(chunk, 'big')
             integers.append(num)
     return (integers, last_chunk_was_1_byte)
