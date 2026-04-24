@@ -1,48 +1,51 @@
-# S-AES with CTR Mode (Assignment Project)
+# S-AES with CTR Mode and Cryptanalysis
 
-This repository contains a full implementation of the Simplified Advanced Encryption Standard (S-AES) using the Counter (CTR) mode of operation, written entirely from scratch in standard Python without external predefined cryptographic libraries.
+This repository represents the final, complete implementation of the Simplified Advanced Encryption Standard (S-AES) using the Counter (CTR) mode of operation, alongside an exhaustive cryptanalysis brute-force attack and a comprehensive unit-testing suite. 
 
-## 1. Project Structure
-The project is mathematically divided into two domains:
-1.  **`saes_core.py`**: Contains the core cryptography engine. It handles all matrix operations, S-Box lookups, Bitwise logic, and Galois Field $GF(2^4)$ math to securely encrypt a single 16-bit block.
-2.  **`ctr_mode.py`**: Contains the completed CTR wrapper that allows the cipher to encrypt/decrypt entire binary files, images, and text streams using a dynamic counter stream. Padding-safe file reading and writing are fully implemented.
+The entire mathematical engine and logic were written from scratch in Python, strictly fulfilling the requirement to avoid external predefined cryptographic libraries.
 
-## 2. Methodology & Operations Used
-Because predefined AES libraries were strictly forbidden, the algorithm relies strictly on low-level Python manipulations:
-*   **Bitwise Shifts (`<<`, `>>`)**: Used to perfectly isolate 4-bit nibbles and execute polynomial multiplication.
-*   **Bitwise AND (`&`)**: Used as a mask to prevent binary overlaps.
-*   **Bitwise XOR (`^`)**: Used for the AddRoundKey step and for $GF(2^4)$ polynomial reduction.
+## 1. Project Architecture
 
-## 3. The Mathematics of `saes_core.py`
-The block cipher expands a 16-bit key into three round keys ($K_0, K_1, K_2$). It encrypts the 16-bit plaintext block using two Rounds. The complex `MixColumns` step utilizes a matrix multiplication optimized via a custom $GF(2^4)$ Shift-and-XOR mathematical reduction function (`gf_multiply_2`).
+The project is structured into four main operational domains:
 
-To execute this, the required sequence is:
-`AddRoundKey` $\rightarrow$ `SubNibbles` $\rightarrow$ `ShiftRows` $\rightarrow$ `MixColumns` $\rightarrow$ `AddRoundKey` $\rightarrow$ `SubNibbles` $\rightarrow$ `ShiftRows` $\rightarrow$ `AddRoundKey`. 
+1. **`saes_core.py` (The Mathematical Core)**: Contains the low-level cryptography engine. It handles all matrix operations, S-Box lookups, bitwise logic, and finite-field $GF(2^4)$ math to securely encrypt a single 16-bit block.
+2. **`ctr_mode.py` (The System Wrapper)**: Transforms the block cipher into a Continuous Stream Cipher. It implements padding-safe binary interactions allowing the cipher to encrypt/decrypt arbitrary raw files, including images, videos, texts, and PDFs natively. 
+3. **`test_saes.py` (The Verification Suite)**: Contains 31 automated unit tests verifying the mathematical precision of the Galois Field arithmetic, the key expansion, and asserting accuracy against the official Stallings S-AES test vectors (Key: `0xA73B`, Plaintext: `0x6F6B` $\rightarrow$ Ciphertext: `0x0738`).
+4. **`brute_force.py` (The Cryptanalysis Attack)**: Explores the vulnerability of the 16-bit key space structure. It implements a Known-Plaintext Attack (KPA) by recovering the CTR keystream via boolean XOR and exhaustively searching all 65,536 key combinations in under one second to derive the master key.
 
-## 4. The Logic of `ctr_mode.py`
-The CTR wrapper is highly optimized to encrypt binary streams safely without corrupting the file's structure. It maps directly to theoretical cryptography models by performing four distinct logical phases:
-1. **Binary Byte Parsing**: Safely reads incoming files as chunks using `int.from_bytes()`. It explicitly traps 1-byte EOF edge cases to prevent binary padding corruption when processing files with odd sizes.
-2. **Deterministic Keystream Generation**: It passes the iterative `counter` (instead of plaintext) and the `secret key` directly into the `saes_encrypt` mathematical core to generate a pseudorandom 16-bit keystream value.
-3. **Symmetrical XOR Application**: Blends the keystream and the actual file block using Bitwise XOR (`^`). Because of the symmetry of XOR logic, this exact same identical procedure seamlessly encrypts plaintext into ciphertext and decrypts ciphertext into plaintext.
-4. **Counter Increment Bounds**: Ensures the internal nonce stream stays perfectly synchronized via a modulo wrap-around calculation `(counter + 1) % 65536`.
+## 2. Cryptographic Implementation Details
 
-## 5. How to Use & Test the Project
+Because predefined libraries were strictly forbidden, the algorithm relies strictly on low-level Python manipulations:
+* **Bitwise Shifts (`<<`, `>>`)**: Used to isolate 4-bit nibbles securely and execute structural mathematical scaling (multiplying by $x$ in polynomials).
+* **Bitwise AND (`&`)**: Used as a masking filter to perfectly prevent binary tracking overflows.
+* **Bitwise XOR (`^`)**: Employed heavily for the AddRoundKey step, symmetric CTR mode overlay, and for $GF(2^4)$ polynomial long-division reduction.
+
+The `MixColumns` step utilizes a matrix multiplication optimized via a custom $GF(2^4)$ "Shift-and-XOR" reduction function, seamlessly looping operations within the field over the irreducible polynomial `0x13`.
+
+## 3. How to Use The System
+
+### Encrypting and Decrypting Files (`ctr_mode.py`)
 Because Counter Mode (CTR) transforms a block cipher into a stream cipher via symmetrical XOR operations, the script for encryption is completely mathematically identical to the script for decryption. 
 
-### Executing the script
 Run the CTR wrapper file from your terminal:
 ```bash
 python ctr_mode.py
 ```
 It will prompt you for four interactive variables:
-1. **Input File**: Path to the file you wish to process (e.g., `message.txt`, `image.png`).
-2. **Output File**: Path to save the processed binary output (e.g., `encrypted.txt`, `decrypted_image.png`).
-3. **Key**: A 16-bit integer (e.g., `55000`) serving as your highly-secret encryption key. **You must use this exact same integer to decrypt the file later.**
+1. **Input File**: Path to the file you wish to process (e.g., `image.png`).
+2. **Output File**: Path to save the processed binary output (e.g., `encrypted_image.png`).
+3. **Key**: A 16-bit integer (e.g., `12345`) serving as your highly-secret encryption key.
 4. **Starting Counter**: Your starting Initialization Vector (usually `0`).
 
-### Example Test Workflow
-1. Create a file `secret.txt` containing a hidden message.
-2. Run `python ctr_mode.py`. Use inputs: `secret.txt`, `cipher.bin`, `12345`, `0`.
-3. Open `cipher.bin` to verify the bytes are perfectly scrambled and unreadable.
-4. Run `python ctr_mode.py` again. Use inputs: `cipher.bin`, `restored.txt`, `12345`, `0`.
-5. Open `restored.txt`. It will perfectly match your original `secret.txt` message!
+### Running the Brute-Force KPA Attack (`brute_force.py`)
+Run the script to witness how quickly a 16-bit key falls to modern computational hardware:
+```bash
+python brute_force.py
+```
+You will provide a chunk of known plaintext, the matching ciphertext chunk, and the counter integer used. The program will instantaneously recover the keystream, scan all $2^{16}$ possible keys, and reveal the secret key.
+
+### Verifying Math Integrity (`test_saes.py`)
+Run the automated test suite to mathematically verify every single step of the AES rounds:
+```bash
+python test_saes.py
+```
