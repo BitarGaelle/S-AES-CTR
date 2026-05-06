@@ -67,8 +67,8 @@ if __name__ == "__main__":
     #we need to get the input file path, output file path, key, and starting counter from the user
     input_file = input("Enter the input file path: ")
     output_file = input("Enter the output file path: ")
-    key = int(input("Enter the key: "))
-    starting_counter = int(input("Enter the starting counter: "))
+    key = int(input("Enter the key: "), 0)
+    starting_counter = int(input("Enter the starting counter: "), 0)
     print("Encrypting..")
     process_file_ctr(input_file, output_file, key, starting_counter)
     print("Done!  Please Check the output file :D")

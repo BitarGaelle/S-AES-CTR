@@ -3,10 +3,6 @@ SBOX = [
     0x6, 0x2, 0x0, 0x3, 0xC, 0xE, 0xF, 0x7
 ] #S-box (1-D list with hex notations)
 
-MIX_COLUMNS_MATRIX = [
-    [1, 4],
-    [4, 1]
-]
 
 def key_expansion(key):
     #key 0

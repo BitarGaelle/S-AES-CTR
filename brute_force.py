@@ -13,9 +13,9 @@ def brute_force(plaintext_block, ciphertext_block, counter=0):
     return None
 
 if __name__ == "__main__":
-    plaintext_block  = int(input("Enter known plaintext block (integer): "))
-    ciphertext_block = int(input("Enter known ciphertext block (integer): "))
-    counter          = int(input("Enter counter value used for that block: "))
+    plaintext_block  = int(input("Enter known plaintext block (decimal or 0x hex): "), 0)
+    ciphertext_block = int(input("Enter known ciphertext block (decimal or 0x hex): "), 0)
+    counter          = int(input("Enter counter value used for that block: "), 0)
 
     print("Brute forcing...")
     start = time.time()
