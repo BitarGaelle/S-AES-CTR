@@ -90,7 +90,7 @@ def menu_brute_force():
 
 
 def menu_demo():
-    text = "Hello!"
+    text = input("Plaintext for demo: ").strip() or "Hello!"
     key = 0xA73B
     counter = 0
 
